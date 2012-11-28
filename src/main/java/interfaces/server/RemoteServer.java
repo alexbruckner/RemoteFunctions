@@ -1,6 +1,7 @@
 package interfaces.server;
 
 import interfaces.client.FunctionCall;
+import interfaces.client.RemoteException;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -63,10 +64,13 @@ public class RemoteServer {
 	private void submit(Socket socket) throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
 		ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 		FunctionCall functionCall = (FunctionCall) objectInputStream.readObject();
-		System.out.println("server received function call: " + functionCall);
 		Method m = lookup(functionCall);
-		System.out.println(Arrays.toString(functionCall.getArgs()));
-		Object returned = m.invoke(null, functionCall.getArgs());
+		Object returned;
+		if (m != null) {
+			returned = m.invoke(null, functionCall.getArgs());
+		} else {
+			returned = new RemoteException(String.format("%s not found", functionCall.getFunction()));
+		}
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream((socket.getOutputStream()));
 		objectOutputStream.writeObject(returned);
 		objectInputStream.close();
@@ -77,9 +81,6 @@ public class RemoteServer {
 	private Method lookup(FunctionCall functionCall) {
 		interfaces.client.Function function = functionCall.getFunction();
 		for (Method m : FUNCTIONS) {    //TODO check no parameters
-			System.out.format("%s == %s: %s%n", m.getName(), function.getName(), m.getName().equals(function.getName()));
-			System.out.format("%s == %s: %s%n", m.getReturnType(), function.getReturnType(), m.getReturnType().equals(function.getReturnType()));
-			System.out.format("%s == %s: %s%n", Arrays.toString(m.getParameterTypes()), Arrays.toString(function.getParameterTypes()), Arrays.equals(m.getParameterTypes(), function.getParameterTypes()));
 			if (m.getName().equals(function.getName()) && m.getReturnType().equals(function.getReturnType()) && Arrays.equals(m.getParameterTypes(), function.getParameterTypes())) {
 				return m;
 			}

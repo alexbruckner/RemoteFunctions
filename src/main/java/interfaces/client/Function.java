@@ -31,4 +31,21 @@ public class Function implements Serializable {
 	public Class<?>[] getParameterTypes() {
 		return parameterTypes;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("[%s %s(%s)]", returnType.getName(), name, toList(parameterTypes));
+	}
+
+	private String toList(Class<?>[] parameterTypes) {
+		StringBuilder sb = new StringBuilder();
+		for (Class<?> parameterType : parameterTypes) {
+			sb.append(parameterType.getName()).append(", ");
+		}
+		if (sb.length() > 1) {
+			sb.deleteCharAt(sb.length() - 1);
+			sb.deleteCharAt(sb.length() - 1);
+		}
+		return sb.toString();
+	}
 }
