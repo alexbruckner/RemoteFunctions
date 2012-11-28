@@ -15,14 +15,19 @@ public class RemoteClient {
 		this.port = port;
 	}
 
-	public <T> T call(Class<T> returnType, String functionName, Object... args) throws IOException, ClassNotFoundException {
+	public <T> T call(Class<T> returnType, String functionName, Object... args) {
 		Class<?>[] parameterTypes = new Class<?>[args.length];
 		for (int i = 0; i < args.length; i++) {
 			parameterTypes[i] = args[i].getClass();
 		}
 		interfaces.client.Function function = new interfaces.client.Function(returnType, functionName, parameterTypes);
 		FunctionCall functionCall = new FunctionCall(function, args);
-		Object returned = call(functionCall);
+		Object returned = null;
+		try {
+			returned = call(functionCall);
+		} catch (Exception e) {
+			throw new RemoteException(e);
+		}
 		if (returned instanceof RemoteException) {
 			throw (RemoteException)returned;
 		}
