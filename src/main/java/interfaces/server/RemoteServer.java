@@ -43,7 +43,10 @@ public class RemoteServer {
 	public RemoteServer(final int port) {
 		// check annotated functions
 		LOG.info("Loading declared functions...");
-		for (Method m : Classes.listAllAnnotatedMethods(Server.class, Function.class)) {
+
+		Set<Method> methods = Classes.listAllAnnotatedMethods(Server.class, Function.class);
+		methods.addAll(Classes.listAnnotatedMethods(getClass(), Function.class)); //add this one so that it is available outside this project
+		for (Method m : methods) {
 			if (Modifier.isStatic(m.getModifiers())){
 				FUNCTIONS.add(m);
 				for (Class<?> parameterType : m.getParameterTypes()) {
