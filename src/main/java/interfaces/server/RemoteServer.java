@@ -6,13 +6,14 @@ import interfaces.client.RemoteException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
@@ -25,7 +26,7 @@ public class RemoteServer {
 	public static final Logger LOG = Logger.getLogger(RemoteServer.class.getName());
 
 	private static final Set<Method> FUNCTIONS = new CopyOnWriteArraySet<Method>();
-//	private static final ExecutorService EXECUTION_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public RemoteServer(final int port) {
 		// check annotated functions
@@ -34,7 +35,7 @@ public class RemoteServer {
 			FUNCTIONS.add(m);
 		}
 
-		LOG.info(String.valueOf(FUNCTIONS));
+		LOG.info(String.format("Found the following defined functions (class annotated with '@Server', static method annotated with '@Function'): %s%n", FUNCTIONS));
 
 		// open server socket
 		new Thread(new Runnable() {
@@ -49,7 +50,7 @@ public class RemoteServer {
 					try {
 						Socket socket = serverSocket.accept();
 						submit(socket);
-					} catch (Exception e) {
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
@@ -60,22 +61,29 @@ public class RemoteServer {
 
 	}
 
-	//TODO multithreading
-	private void submit(Socket socket) throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
-		ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-		FunctionCall functionCall = (FunctionCall) objectInputStream.readObject();
-		Method m = lookup(functionCall);
-		Object returned;
-		if (m != null) {
-			returned = m.invoke(null, functionCall.getArgs());
-		} else {
-			returned = new RemoteException(String.format("%s not found", functionCall.getFunction()));
-		}
-		ObjectOutputStream objectOutputStream = new ObjectOutputStream((socket.getOutputStream()));
-		objectOutputStream.writeObject(returned);
-		objectInputStream.close();
-		objectOutputStream.close();
-		socket.close();
+	private void submit(final Socket socket) {
+		EXECUTOR_SERVICE.submit(new Runnable() {
+			public void run() {
+				try {
+					ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+					FunctionCall functionCall = (FunctionCall) objectInputStream.readObject();
+					Method m = lookup(functionCall);
+					Object returned;
+					if (m != null) {
+						returned = m.invoke(null, functionCall.getArgs());
+					} else {
+						returned = new RemoteException(String.format("%s not found", functionCall.getFunction()));
+					}
+					ObjectOutputStream objectOutputStream = new ObjectOutputStream((socket.getOutputStream()));
+					objectOutputStream.writeObject(returned);
+					objectInputStream.close();
+					objectOutputStream.close();
+					socket.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	private Method lookup(FunctionCall functionCall) {
@@ -87,7 +95,6 @@ public class RemoteServer {
 		}
 		return null;
 	}
-
 
 	public static void main(String[] args) {
 		new RemoteServer(Integer.parseInt(System.getProperty("server.port")));
