@@ -20,6 +20,7 @@ public class RemoteClient {
 		call(null, functionName, args);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T call(Class<T> returnType, String functionName, Object... args) {
 		Class<?>[] parameterTypes = new Class<?>[args.length];
 		for (int i = 0; i < args.length; i++) {
@@ -51,6 +52,7 @@ public class RemoteClient {
 		return returned;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Set<Function> getAvailableFunctions(){
 		return call(Set.class, "getAvailableFunctions");
 	}

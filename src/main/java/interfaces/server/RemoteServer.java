@@ -109,7 +109,7 @@ public class RemoteServer {
 
 	private Method lookup(FunctionCall functionCall) {
 		interfaces.client.Function function = functionCall.getFunction();
-		for (Method m : FUNCTIONS) {    //TODO check no parameters
+		for (Method m : FUNCTIONS) {
 			if (m.getName().equals(function.getName()) && checkReturnTypes(m, function) && Arrays.equals(m.getParameterTypes(), function.getParameterTypes())) {
 				return m;
 			}
