@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
@@ -32,11 +33,15 @@ public class RemoteServer {
 		// check annotated functions
 		LOG.info("Loading declared functions...");
 		for (Method m : Classes.listAllAnnotatedMethods(Server.class, Function.class)) {
-			FUNCTIONS.add(m);
-			for (Class<?> parameterType : m.getParameterTypes()) {
-				if (parameterType.isPrimitive()) {
-					LOG.warning(String.format("%s has a primitive parameter type, whilst not a problem, the client may autobox that parameter into the wrong non-primitive class and therefor trying to call a method with the wrong signature.", m));
+			if (Modifier.isStatic(m.getModifiers())){
+				FUNCTIONS.add(m);
+				for (Class<?> parameterType : m.getParameterTypes()) {
+					if (parameterType.isPrimitive()) {
+						LOG.warning(String.format("%s has a primitive parameter type, whilst not a problem, the client may autobox that parameter into the wrong non-primitive class and therefor trying to call a method with the wrong signature.", m));
+					}
 				}
+			} else {
+				LOG.warning(String.format("Not adding method [%s]. Currently we only support static methods.", m));
 			}
 		}
 
