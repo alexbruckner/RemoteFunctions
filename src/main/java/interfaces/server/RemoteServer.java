@@ -125,7 +125,8 @@ public class RemoteServer {
 	}
 
 	public static void main(String[] args) {
-		new RemoteServer(Integer.parseInt(System.getProperty("server.port")));
+		String portProperty = System.getProperty("server.port", "7777");
+		new RemoteServer(Integer.parseInt(portProperty));
 	}
 
 }
