@@ -34,7 +34,7 @@ public class Function implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("[%s %s(%s)]", returnType.getName(), name, toList(parameterTypes));
+		return String.format("[%s %s(%s)]", returnType != null ? returnType.getName() : "void", name, toList(parameterTypes));
 	}
 
 	private String toList(Class<?>[] parameterTypes) {

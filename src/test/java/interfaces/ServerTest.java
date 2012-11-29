@@ -37,6 +37,11 @@ public class ServerTest {
 		return 7;
 	}
 
+	@Function
+	public static void testFunction4(Integer i){
+		System.out.println("testFunction4 method called with: " + i);
+	}
+
 	@BeforeClass
 	public static void init(){
 		new RemoteServer(7777);
@@ -64,6 +69,11 @@ public class ServerTest {
 	public void testIntReturnType() throws IOException, ClassNotFoundException {
 		int returnValue = REMOTE.call(int.class, "testFunction3");
 		Assert.assertEquals(returnValue, 7);
+	}
+
+	@Test
+	public void testNoReturnType() throws IOException, ClassNotFoundException {
+		REMOTE.call(null, "testFunction4", 7);
 	}
 
 }

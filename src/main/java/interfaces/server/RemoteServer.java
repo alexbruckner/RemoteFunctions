@@ -33,6 +33,11 @@ public class RemoteServer {
 		LOG.info("Loading declared functions...");
 		for (Method m : Classes.listAllAnnotatedMethods(Server.class, Function.class)) {
 			FUNCTIONS.add(m);
+			for (Class<?> parameterType : m.getParameterTypes()) {
+				if (parameterType.isPrimitive()) {
+					LOG.warning(String.format("%s has a primitive parameter type, whilst not a problem, the client may autobox that parameter into the wrong non-primitive class and therefor trying to call a method with the wrong signature.", m));
+				}
+			}
 		}
 
 		LOG.info(String.format("Found the following defined functions (class annotated with '@Server', static method annotated with '@Function'): %s%n", FUNCTIONS));
@@ -89,11 +94,18 @@ public class RemoteServer {
 	private Method lookup(FunctionCall functionCall) {
 		interfaces.client.Function function = functionCall.getFunction();
 		for (Method m : FUNCTIONS) {    //TODO check no parameters
-			if (m.getName().equals(function.getName()) && m.getReturnType().equals(function.getReturnType()) && Arrays.equals(m.getParameterTypes(), function.getParameterTypes())) {
+			System.out.format("%s == %s: %s%n", m.getName(), function.getName(), m.getName().equals(function.getName()));
+			System.out.format("%s == %s: %s%n", m.getReturnType(), function.getReturnType(), m.getReturnType().equals(function.getReturnType()));
+			System.out.format("%s == %s: %s%n", Arrays.toString(m.getParameterTypes()), Arrays.toString(function.getParameterTypes()), Arrays.equals(m.getParameterTypes(), function.getParameterTypes()));
+			if (m.getName().equals(function.getName()) && checkReturnTypes(m, function) && Arrays.equals(m.getParameterTypes(), function.getParameterTypes())) {
 				return m;
 			}
 		}
 		return null;
+	}
+
+	private boolean checkReturnTypes(Method m, interfaces.client.Function function) {
+		return function.getReturnType() == null && m.getReturnType().toString().equals("void") || m.getReturnType().equals(function.getReturnType());
 	}
 
 	public static void main(String[] args) {
