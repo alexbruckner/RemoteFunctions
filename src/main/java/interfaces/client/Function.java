@@ -1,6 +1,7 @@
 package interfaces.client;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,6 +19,13 @@ public class Function implements Serializable {
 		this.returnType = returnType;
 		this.name = methodName;
 		this.parameterTypes = parameterTypes;
+	}
+
+	public static Function toFunction(Method method){
+		Class<?> returnType = method.getReturnType();
+		String methodName = method.getName();
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		return new Function(returnType, methodName, parameterTypes);
 	}
 
 	public String getName() {

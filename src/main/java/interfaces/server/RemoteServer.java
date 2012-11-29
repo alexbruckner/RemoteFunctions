@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
@@ -22,12 +23,22 @@ import java.util.logging.Logger;
  * Date: 25/11/12
  * Time: 20:34
  */
+@Server
 public class RemoteServer {
 
 	public static final Logger LOG = Logger.getLogger(RemoteServer.class.getName());
 
 	private static final Set<Method> FUNCTIONS = new CopyOnWriteArraySet<Method>();
 	private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	@Function
+	public static Set<interfaces.client.Function> getAvailableFunctions(){
+		Set<interfaces.client.Function> functions = new HashSet<interfaces.client.Function>();
+		for (Method m : FUNCTIONS){
+			functions.add(interfaces.client.Function.toFunction(m));
+		}
+		return functions;
+	}
 
 	public RemoteServer(final int port) {
 		// check annotated functions

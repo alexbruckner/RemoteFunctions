@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Set;
 
 public class RemoteClient {
 
@@ -48,6 +49,10 @@ public class RemoteClient {
 		objectInputStream.close();
 		socket.close();
 		return returned;
+	}
+
+	public Set<Function> getAvailableFunctions(){
+		return call(Set.class, "getAvailableFunctions");
 	}
 
 }
