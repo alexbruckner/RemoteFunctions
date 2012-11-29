@@ -11,6 +11,7 @@ of a class that is annotated with @Server will be able to be called remotely.
 
 1. Example Server Classes (The TestServer class' main method starts the serversocket on 8888):
 
+<code>
 @Server
 public class TestServer {
 
@@ -33,9 +34,11 @@ public class AnotherClass {
 		return Math.pow(a, b);
 	}
 }
+</code>
 
 2. Example remote call:
 
+<code>
 public class TestClient {
 	public static void main(String[] args) {
 		RemoteClient client = new RemoteClient("localhost", 8888);
@@ -44,10 +47,13 @@ public class TestClient {
 		System.out.println(client.call(double.class, "pow", 2.0, 8.0));
 	}
 }
+</code>
 
 3. Example output:
 
+<code>
 [[java.lang.String test()], [double pow(java.lang.Double, java.lang.Double)], [java.util.Set getAvailableFunctions()]]
 test
 256.0
+</code>
 
