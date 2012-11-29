@@ -15,6 +15,10 @@ public class RemoteClient {
 		this.port = port;
 	}
 
+	public void call(String functionName, Object... args) {
+		call(null, functionName, args);
+	}
+
 	public <T> T call(Class<T> returnType, String functionName, Object... args) {
 		Class<?>[] parameterTypes = new Class<?>[args.length];
 		for (int i = 0; i < args.length; i++) {

@@ -73,7 +73,7 @@ public class ServerTest {
 
 	@Test
 	public void testNoReturnType() throws IOException, ClassNotFoundException {
-		REMOTE.call(null, "testFunction4", 7);
+		REMOTE.call("testFunction4", 7);
 	}
 
 }
