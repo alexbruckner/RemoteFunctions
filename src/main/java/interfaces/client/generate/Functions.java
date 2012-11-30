@@ -6,6 +6,7 @@ import interfaces.client.RemoteClient;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * User: Alex
@@ -39,6 +40,10 @@ public class Functions {
 
 	public String getSource() {
 		StringBuilder sb = new StringBuilder();
+		sb.append(String.format("/*" +
+							  "\n * Dynamically created source via interfaces.client.generate.Functions for remote client to server at %s:%s" +
+							  "\n * Date: %s" +
+				              "\n */\n", host, port, new Date()));
 		sb.append("package interfaces.client.generate;\n");
 		sb.append("import interfaces.client.RemoteClient;\n");
 		sb.append("import java.util.Set;\n");
@@ -62,8 +67,9 @@ public class Functions {
 			}
 			sb.append("){\n");
 
+			sb.append("\t\t");
 			if (!function.getReturnType().getSimpleName().equals("void")) {
-				sb.append("\t\treturn ");
+				sb.append("return ");
 			}
 			sb.append("remoteClient.call(").append(returnType).append(".class, \"").append(functionName).append("\"");
 			for (i = 0; i < function.getParameterTypes().length; i++) {
