@@ -32,7 +32,9 @@ public class RemoteClient {
 
 	@SuppressWarnings("unchecked")
 	public <T> T call(Class<T> returnType, Function function, Object... args) {
-		assert(returnType == function.getReturnType());
+		if(returnType != function.getReturnType()){
+            throw new RemoteException(String.format("call return type [%s] must match function return type [%s]", returnType, function.getReturnType()));
+        }
 		FunctionCall functionCall = new FunctionCall(function, args);
 		return (T) call(functionCall);
 	}

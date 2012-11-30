@@ -96,6 +96,12 @@ public class ServerTest {
 		Assert.assertEquals(returnValue, 7);
 	}
 
+    @Test(expectedExceptions = RemoteException.class)
+    public void testWrongReturnType() {
+        interfaces.client.Function function = new interfaces.client.Function(int.class, "testFunction5", int.class);
+        REMOTE.call(String.class, function, 7);
+    }
+
 	@Test
 	public void getAvailableFunctions() throws InterruptedException {
 		List<interfaces.client.Function> availableFunctions = new ArrayList<interfaces.client.Function>(REMOTE.getAvailableFunctions());
