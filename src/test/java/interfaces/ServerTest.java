@@ -113,6 +113,7 @@ public class ServerTest {
 		Assert.assertEquals(String.valueOf(availableFunctions),
 				"" +
 						"[[java.util.Set getAvailableFunctions()], " +
+						"[java.lang.String someFunction(java.lang.String)], " +
 						"[java.lang.String testFunction(java.lang.String, java.lang.Integer)], " +
 						"[java.lang.String testFunction2()], " +
 						"[int testFunction3()], " +
