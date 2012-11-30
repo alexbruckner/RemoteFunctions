@@ -45,6 +45,11 @@ public class ServerTest {
 		System.out.println("testFunction4 method called with: " + i);
 	}
 
+	@Function
+	public static int testFunction5(int i) {
+		return i;
+	}
+
 	@BeforeClass
 	public static void init() {
 		new RemoteServer(7777);
@@ -79,6 +84,18 @@ public class ServerTest {
 		REMOTE.call("testFunction4", 7);
 	}
 
+	@Test(expectedExceptions = RemoteException.class)
+	public void testIntArgumentTypeWithAutoboxedInt() {
+		REMOTE.call(int.class, "testFunction5", 7);
+	}
+
+	@Test
+	public void testIntArgumentTypeWithFunctionCallObject() {
+		interfaces.client.Function function = new interfaces.client.Function(int.class, "testFunction5", int.class);
+		int returnValue = REMOTE.call(int.class, function, 7);
+		Assert.assertEquals(returnValue, 7);
+	}
+
 	@Test
 	public void getAvailableFunctions() throws InterruptedException {
 		List<interfaces.client.Function> availableFunctions = new ArrayList<interfaces.client.Function>(REMOTE.getAvailableFunctions());
@@ -93,7 +110,8 @@ public class ServerTest {
 						"[java.lang.String testFunction(java.lang.String, java.lang.Integer)], " +
 						"[java.lang.String testFunction2()], " +
 						"[int testFunction3()], " +
-						"[void testFunction4(java.lang.Integer)]]");
+						"[void testFunction4(java.lang.Integer)], " +
+						"[int testFunction5(int)]]");
 	}
 
 }

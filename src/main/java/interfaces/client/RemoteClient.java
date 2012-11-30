@@ -1,6 +1,5 @@
 package interfaces.client;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -28,32 +27,44 @@ public class RemoteClient {
 		}
 		interfaces.client.Function function = new interfaces.client.Function(returnType, functionName, parameterTypes);
 		FunctionCall functionCall = new FunctionCall(function, args);
-		Object returned = null;
-		try {
-			returned = call(functionCall);
-		} catch (Exception e) {
-			throw new RemoteException(e);
-		}
-		if (returned instanceof RemoteException) {
-			throw (RemoteException)returned;
-		}
-		return (T) returned;
+		return (T) call(functionCall);
 	}
 
-	private Object call(FunctionCall functionCall) throws IOException, ClassNotFoundException {
-		Socket socket = new Socket(host, port);
-		ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-		objectOutputStream.writeObject(functionCall);
-		ObjectInputStream objectInputStream = new ObjectInputStream((socket.getInputStream()));
-		Object returned = objectInputStream.readObject();
-		objectOutputStream.close();
-		objectInputStream.close();
-		socket.close();
+	@SuppressWarnings("unchecked")
+	public <T> T call(Class<T> returnType, Function function, Object... args) {
+		assert(returnType == function.getReturnType());
+		FunctionCall functionCall = new FunctionCall(function, args);
+		return (T) call(functionCall);
+	}
+
+	private Object call(FunctionCall functionCall) {
+		Socket socket = null;
+		ObjectOutputStream objectOutputStream = null;
+		ObjectInputStream objectInputStream = null;
+		Object returned = null;
+		try {
+			socket = new Socket(host, port);
+			objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+			objectOutputStream.writeObject(functionCall);
+			objectInputStream = new ObjectInputStream((socket.getInputStream()));
+			returned = objectInputStream.readObject();
+		} catch (Exception e) {
+			throw new RemoteException(e);
+		} finally {
+			ClientUtils.close(objectOutputStream);
+			ClientUtils.close(objectInputStream);
+			ClientUtils.close(socket);
+		}
+
+		if (returned instanceof RemoteException) {
+			throw (RemoteException) returned;
+		}
+
 		return returned;
 	}
 
 	@SuppressWarnings("unchecked")
-	public Set<Function> getAvailableFunctions(){
+	public Set<Function> getAvailableFunctions() {
 		return call(Set.class, "getAvailableFunctions");
 	}
 
