@@ -32,7 +32,7 @@ public class Functions {
 	public void generateSource() throws IOException {
 		String source = getSource();
 		File sourceFile = new File("src/main/java/interfaces/client/generate/Functions_" + host + "_" + port + ".java");
-		sourceFile.mkdirs();
+		sourceFile.getParentFile().mkdirs();
 		FileWriter writer = new FileWriter(sourceFile);
 		writer.write(source);
 		writer.flush();
